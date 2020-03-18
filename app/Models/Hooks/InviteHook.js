@@ -1,8 +1,10 @@
 'use strict'
 
 const User = use('App/Models/User')
+const Kue = use('Kue')
+const Job = use('App/Jobs/InvitationEmail')
 
-const InviteHook = exports = module.exports = {}
+const InviteHook = (exports = module.exports = {})
 
 InviteHook.sendInvitationEmail = async (invite) => {
   const { email } = invite
@@ -11,6 +13,10 @@ InviteHook.sendInvitationEmail = async (invite) => {
   if (invited) {
     await invited.teams().attach(invite.team_id)
   } else {
-    console.log('CRIAR CONTA')
+    const user = invite.user().fetch()
+    const team = invite.team().fetch()
+
+    Kue.dispatch(Job.key, { user, team, email }, { attempts: 3 })
+
   }
 }

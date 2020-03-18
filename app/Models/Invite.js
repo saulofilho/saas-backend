@@ -1,6 +1,7 @@
 'use strict'
 
 /** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */
+
 const Model = use('Model')
 
 class Invite extends Model {
@@ -10,7 +11,7 @@ class Invite extends Model {
     this.addHook('afterCreate', 'InviteHook.sendInvitationEmail')
   }
 
-  use () {
+  user () {
     return this.belongsTo('App/Models/User')
   }
 
