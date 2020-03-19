@@ -1,12 +1,10 @@
 'use strict'
 
+const Role = use('Adonis/Acl/Role')
+
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
-
-/**
- * Resourceful controller for interacting with teams
- */
 class TeamController {
   /**
    * Show a list of all teams.
@@ -23,18 +21,6 @@ class TeamController {
     return teams
   }
 
-  // /**
-  //  * Render a form to be used for creating a new team.
-  //  * GET teams/create
-  //  *
-  //  * @param {object} ctx
-  //  * @param {Request} ctx.request
-  //  * @param {Response} ctx.response
-  //  * @param {View} ctx.view
-  //  */
-  // async create ({ request, response, view }) {
-  // }
-
   /**
    * Create/save a new team.
    * POST teams
@@ -50,6 +36,15 @@ class TeamController {
       ...data,
       user_id: auth.user.id
     })
+
+    const teamJoin = await auth.user
+      .teamJoins()
+      .where('team_id', team.id)
+      .first()
+
+    const admin = await Role.findBy('slug', 'administrator')
+
+    await teamJoin.roles().attach([admin.id])
 
     return team
   }
@@ -71,18 +66,6 @@ class TeamController {
 
       return team
   }
-
-  // /**
-  //  * Render a form to update an existing team.
-  //  * GET teams/:id/edit
-  //  *
-  //  * @param {object} ctx
-  //  * @param {Request} ctx.request
-  //  * @param {Response} ctx.response
-  //  * @param {View} ctx.view
-  //  */
-  // async edit ({ params, request, response, view }) {
-  // }
 
   /**
    * Update team details.
